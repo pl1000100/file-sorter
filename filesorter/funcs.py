@@ -1,5 +1,6 @@
 import datetime
 import os
+import re
 
 
 def create_date_dir(in_path):
@@ -17,3 +18,14 @@ def create_date_dir(in_path):
     
     os.mkdir(base_path)
     return base_path
+
+
+def move_files(src, dst):
+    pattern = r'^\d{4}-\d{2}-\d{2}( \(\d+\))?(\.txt)?'
+    regex = re.compile(pattern)
+    src = src.rstrip("/")
+    items = os.listdir(src)
+
+    to_move = [item for item in items if not regex.match(item)]
+    for item in to_move:
+        os.system(f"mv -v '{src}/{item}' '{dst}' >> './{dst}.txt'")
