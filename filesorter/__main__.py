@@ -1,7 +1,7 @@
 import argparse
 
 from .filesorter import FileSorter
-from.movestrategy import MoveNoSort, MoveSortByExtension, MoveSortByModificationDate
+from .movestrategy import MoveNoSort, MoveSortByExtension, MoveSortByModificationDate
 
 
 def main():
@@ -15,15 +15,13 @@ def main():
     parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
     args = parser.parse_args()
 
-    fs = FileSorter(args.src, args.dst)
+    fs = FileSorter(args.src, args.dst, args.verbose)
     if args.extension:
-        fs.move_files(MoveSortByExtension)
+        fs.move_files(MoveSortByExtension())
     elif args.date:
-        fs.move_files(MoveSortByModificationDate)
+        fs.move_files(MoveSortByModificationDate())
     else:
-        fs.move_files(MoveNoSort)
-    
-
+        fs.move_files(MoveNoSort())
 
 
 if __name__ == '__main__':
