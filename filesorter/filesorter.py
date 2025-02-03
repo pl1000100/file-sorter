@@ -6,5 +6,5 @@ class FileSorter():
         self.dst = dst
         
     def move_files(self, move_strategy: MoveStrategy=MoveNoSort):
-        move_strategy.move(self.src, self.dst)
+        move_strategy.move(self, self.src, self.dst)
 
