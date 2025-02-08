@@ -1,7 +1,7 @@
 import argparse
 
-from .filesorter import FileSorter
-from .movestrategy import MoveNoSort, MoveSortByExtension, MoveSortByModificationDate
+from filesorter.file_sorter import FileSorter
+from filesorter.movestrategy import NoSort, SortByExtension, SortByModificationDate
 
 
 def main():
@@ -17,11 +17,11 @@ def main():
 
     fs = FileSorter(args.src, args.dst, args.verbose)
     if args.extension:
-        fs.move_files(MoveSortByExtension())
+        fs.move_files(SortByExtension)
     elif args.date:
-        fs.move_files(MoveSortByModificationDate())
+        fs.move_files(SortByModificationDate)
     else:
-        fs.move_files(MoveNoSort())
+        fs.move_files(NoSort)
 
 
 if __name__ == '__main__':

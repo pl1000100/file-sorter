@@ -1,9 +1,11 @@
+import time
 import os
 import shutil
 import datetime
 import unittest
 
-from movestrategy import MoveNoSort, MoveSortByExtension, MoveSortByModificationDate
+from filesorter.movestrategy import NoSort, SortByExtension, SortByModificationDate
+from filesorter.file_sorter import FileSorter
 
 class TestMoveStrategy(unittest.TestCase):
     def setUp(self):
@@ -19,112 +21,187 @@ class TestMoveStrategy(unittest.TestCase):
     def create_file(self, path):
         with open(path, 'w') as file:
             pass
-
-    def test_MoveNoSort_1(self):
-        test_path = "./test_dir"
-        src = os.path.join(test_path, "src")
-        dst = os.path.join(test_path, "dst")
-        os.mkdir(src)
-        os.mkdir(dst)
-        os.mkdir(os.path.join(src, "1"))
-        self.create_file(os.path.join(src, "1/a.txt"))
-        self.create_file(os.path.join(src, "1/b.txt"))
-        os.mkdir(os.path.join(src, "2"))
-        MoveNoSort().move(src, dst)
-
-        self.assertTrue(os.path.exists(os.path.join(dst, "1/a.txt")))
-        self.assertTrue(os.path.exists(os.path.join(dst, "1/b.txt")))
-
-    def test_MoveNoSort_2(self):
-        test_path = "./test_dir"
-        src = os.path.join(test_path, "src")
-        dst = os.path.join(test_path, "dst")
-        os.mkdir(src)
-        os.mkdir(dst)
-        self.create_file(os.path.join(src, "1.txt"))
-        MoveNoSort().move(src, dst)
-
-        self.assertTrue(os.path.exists(os.path.join(dst, "1.txt")))
-
-    def test_MoveSortByExtension_1(self):
-        test_path = "./test_dir"
-        src = os.path.join(test_path, "src")
-        dst = os.path.join(test_path, "dst")
-        os.mkdir(src)
-        os.mkdir(dst)
-        os.mkdir(os.path.join(src, "1"))
-        self.create_file(os.path.join(src, "1/a.txt"))
-        self.create_file(os.path.join(src, "1/b.ext"))
-        os.mkdir(os.path.join(src, "2"))
-        self.create_file(os.path.join(src, "2/c.ext"))
-        self.create_file(os.path.join(src, "2/d.ext"))
-        self.create_file(os.path.join(src, "e.txt"))
-        self.create_file(os.path.join(src, "f.txt"))
-        self.create_file(os.path.join(src, "g.ext"))
-        MoveSortByExtension().move(src, dst)
-
-        self.assertTrue(os.path.exists(os.path.join(dst, "1/a.txt")))
-        self.assertTrue(os.path.exists(os.path.join(dst, "1/b.ext")))
-        self.assertTrue(os.path.exists(os.path.join(dst, "2/c.ext")))
-        self.assertTrue(os.path.exists(os.path.join(dst, "2/d.ext")))
-        self.assertTrue(os.path.exists(os.path.join(dst, "txt/e.txt")))
-        self.assertTrue(os.path.exists(os.path.join(dst, "txt/f.txt")))
-        self.assertTrue(os.path.exists(os.path.join(dst, "ext/g.ext")))
-
-    def test_MoveSortByExtension_2(self):
-        test_path = "./test_dir"
-        src = os.path.join(test_path, "src")
-        dst = os.path.join(test_path, "dst")
-        os.mkdir(src)
-        os.mkdir(dst)
         
-        self.create_file(os.path.join(src, "1.txt"))
-        
-        MoveSortByExtension().move(src, dst)
-
-        self.assertTrue(os.path.exists(os.path.join(dst, "txt/1.txt")))
-
-    def test_MoveSortByExtension_3(self):
-        test_path = "./test_dir"
-        src = os.path.join(test_path, "src")
-        dst = os.path.join(test_path, "dst")
+    def test_filesorter_move_NoSort_1(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
         os.mkdir(src)
         os.mkdir(dst)
-        
-        self.create_file(os.path.join(src, "1"))
-        
-        MoveSortByExtension().move(src, dst)
+        os.mkdir(src + "/1")
+        os.mkdir(src + "/1/2")
+        os.mkdir(src + "/1/2/3")
+        self.create_file(src + "/a.txt")
+        self.create_file(src + "/1/a.txt")
+        self.create_file(src + "/1/2/a.txt")
+        self.create_file(src + "/1/2/3/a.txt")
+        fs = FileSorter(src, dst)
+        fs.move_files(NoSort)
+        self.assertTrue(os.path.exists(dst + "/a.txt"))
+        self.assertTrue(os.path.exists(dst + "/1/a.txt"))
+        self.assertTrue(os.path.exists(dst + "/1/2/a.txt"))
+        self.assertTrue(os.path.exists(dst + "/1/2/3/a.txt"))
+        self.assertTrue(os.listdir(src) == [])
 
-        self.assertTrue(os.path.exists(os.path.join(dst, "1")))
+    def test_filesorter_move_NoSort_2(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        fs = FileSorter(src, dst)
+        fs.move_files(NoSort)
+        self.assertTrue(os.path.exists(dst))
+        self.assertTrue(os.listdir(dst) == [])
+        self.assertTrue(os.listdir(src) == [])
 
-    def test_MoveSortByModificationDate_1(self):
-        test_path = "./test_dir"
+    def test_filesorter_move_NoSort_3(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        self.create_file(src + "/a.txt")
+        fs = FileSorter(src, dst)
+        fs.move_files(NoSort)
+        self.assertTrue(os.path.exists(dst + "/a.txt"))
+        self.assertTrue(os.listdir(src) == [])
+
+    def test_filesorter_move_NoSort_4(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        os.mkdir(src + "/1")
+        fs = FileSorter(src, dst)
+        fs.move_files(NoSort)
+        self.assertTrue(os.path.exists(dst + "/1"))
+        self.assertTrue(os.listdir(src) == [])
+
+    def test_filesorter_move_SortByModificationDate_1(self):
         today = datetime.date.today()
-        src = os.path.join(test_path, "src")
-        dst = os.path.join(test_path, "dst")
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
         os.mkdir(src)
         os.mkdir(dst)
-        os.mkdir(os.path.join(src, "1"))
-        self.create_file(os.path.join(src, "1/a.txt"))
-        self.create_file(os.path.join(src, "1/b.txt"))
-        os.mkdir(os.path.join(src, "2.ext"))
-        
-        MoveSortByModificationDate().move(src, dst)
+        os.mkdir(src + "/1")
+        os.mkdir(src + "/1/2")
+        os.mkdir(src + "/1/2/3")
+        self.create_file(src + "/a.txt")
+        self.create_file(src + "/1/a.txt")
+        self.create_file(src + "/1/2/a.txt")
+        self.create_file(src + "/1/2/3/a.txt")
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByModificationDate)
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/a.txt"))
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/1/a.txt"))
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/1/2/a.txt"))
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/1/2/3/a.txt"))
+        self.assertTrue(os.listdir(src) == [])
 
-        self.assertTrue(os.path.exists(os.path.join(dst, f"{today}/1/a.txt")))
-        self.assertTrue(os.path.exists(os.path.join(dst, f"{today}/1/b.txt")))
-        self.assertTrue(os.path.exists(os.path.join(dst, f"{today}/2.ext")))
-
-    def test_MoveSortByModificationDate_2(self):
-        test_path = "./test_dir"
+    def test_filesorter_move_SortByModificationDate_2(self):
         today = datetime.date.today()
-        src = os.path.join(test_path, "src")
-        dst = os.path.join(test_path, "dst")
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
         os.mkdir(src)
         os.mkdir(dst)
-        self.create_file(os.path.join(src, "1.txt"))
-        
-        MoveSortByModificationDate().move(src, dst)
+        os.mkdir(src + "/1")
+        os.mkdir(src + "/1/2")
+        os.mkdir(src + "/1/2/3")
+        self.create_file(src + "/a.txt")
+        self.create_file(src + "/1/a.txt")
+        self.create_file(src + "/1/2/a.txt")
+        self.create_file(src + "/1/2/3/a.txt")
+        first_january = datetime.date(2025, 1, 1)
+        os.utime(src + "/a.txt", (time.mktime(first_january.timetuple()), time.mktime(first_january.timetuple())))
+        os.utime(src + "/1/a.txt", (time.mktime(first_january.timetuple()), time.mktime(first_january.timetuple())))
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByModificationDate)
+        self.assertTrue(os.path.exists(dst + f"/{first_january}" + "/a.txt"))
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/1/a.txt"))
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/1/2/a.txt"))
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/1/2/3/a.txt"))
+        self.assertTrue(os.listdir(src) == [])
 
-        self.assertTrue(os.path.exists(os.path.join(dst, f"{today}/1.txt")))
+    def test_filesorter_move_SortByModificationDate_3(self):
+        today = datetime.date.today()
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        os.mkdir(src + "/1")
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByModificationDate)
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/1"))
+        self.assertTrue(os.listdir(src) == [])
+
+    def test_filesorter_move_SortByModificationDate_4(self):
+        today = datetime.date.today()
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        self.create_file(src + "/a.txt")
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByModificationDate)
+        self.assertTrue(os.path.exists(dst + f"/{today}" + "/a.txt"))
+        self.assertTrue(os.listdir(src) == [])
+
+    def test_filesorter_move_SortByModificationDate_5(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByModificationDate)
+        self.assertTrue(os.path.exists(dst))
+        self.assertTrue(os.listdir(src) == [])
         
+    def test_filesorter_move_SortByExtension_1(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        os.mkdir(src + "/1")
+        os.mkdir(src + "/1/2")
+        os.mkdir(src + "/1/2/3")
+        self.create_file(src + "/a.txt")
+        self.create_file(src + "/1/a.txt")
+        self.create_file(src + "/1/2/a.txt")
+        self.create_file(src + "/1/2/3/a.txt")
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByExtension)
+        self.assertTrue(os.path.exists(dst + "/txt/a.txt"))
+        self.assertTrue(os.path.exists(dst + "/1/a.txt"))
+        self.assertTrue(os.path.exists(dst + "/1/2/a.txt"))
+        self.assertTrue(os.path.exists(dst + "/1/2/3/a.txt"))
+        self.assertTrue(os.listdir(src) == [])
+
+    def test_filesorter_move_SortByExtension_2(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        self.create_file(src + "/a.txt")
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByExtension)
+        self.assertTrue(os.path.exists(dst + "/txt/a.txt"))
+        self.assertTrue(os.listdir(src) == [])
+
+    def test_filesorter_move_SortByExtension_3(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        os.mkdir(src + "/1")
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByExtension)
+        self.assertTrue(os.path.exists(dst + "/1"))
+        self.assertTrue(os.listdir(src) == [])
+
+    def test_filesorter_move_SortByExtension_4(self):
+        src = "./test_dir/src"
+        dst = "./test_dir/dst"
+        os.mkdir(src)
+        os.mkdir(dst)
+        fs = FileSorter(src, dst)
+        fs.move_files(SortByExtension)
+        self.assertTrue(os.path.exists(dst))
+        self.assertTrue(os.listdir(src) == [])
